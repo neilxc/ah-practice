@@ -2,6 +2,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Domain;
+using FluentValidation;
 using MediatR;
 using Persistence;
 
@@ -18,10 +19,32 @@ namespace Application.Activities
             public string Venue { get; set; }
             public GeoCoordinate GeoCoordinate { get; set; }
         }
+
+        public class ActivityDataValidator : AbstractValidator<ActivityData>
+        {
+            public ActivityDataValidator()
+            {
+                RuleFor(x => x.Title).NotEmpty().NotNull();
+                RuleFor(x => x.Description).NotEmpty().NotNull();
+                RuleFor(x => x.Date).NotEmpty().NotNull();
+                RuleFor(x => x.City).NotEmpty().NotNull();
+                RuleFor(x => x.Venue).NotEmpty().NotNull();
+                RuleFor(x => x.GeoCoordinate.Latitude).NotEmpty().NotNull();
+                RuleFor(x => x.GeoCoordinate.Longitude).NotEmpty().NotNull();
+            }
+        }
         
         public class Command : IRequest<Activity>
         {
             public ActivityData Activity { get; set; }
+        }
+
+        public class CommandValidator : AbstractValidator<Command>
+        {
+            public CommandValidator()
+            {
+                RuleFor(x => x.Activity).NotNull().SetValidator(new ActivityDataValidator());
+            }
         }
 
         public class Handler : IRequestHandler<Command, Activity>
