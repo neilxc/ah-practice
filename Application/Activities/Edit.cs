@@ -1,6 +1,8 @@
 using System;
+using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using Application.Errors;
 using Domain;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -41,7 +43,7 @@ namespace Application.Activities
                     .FirstOrDefaultAsync(x => x.Id == request.Id, cancellationToken);
                 
                 if (activity == null)
-                    throw new ArgumentNullException();
+                    throw new RestException(HttpStatusCode.NotFound, new {Activity = "Not Found"});
 
                 activity.Title = request.Activity.Title ?? activity.Title;
                 activity.Description = request.Activity.Description ?? activity.Description;
