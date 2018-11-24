@@ -1,6 +1,7 @@
 ﻿using System.Text;
 using Application.Interfaces;
 using Application.Values;
+using AutoMapper;
 using Domain;
 using FluentValidation.AspNetCore;
 using Infrastructure.Errors;
@@ -44,8 +45,10 @@ namespace API
             builder.AddSignInManager<SignInManager<AppUser>>();
 
             services.AddScoped<IJwtGenerator, JwtGenerator>();
+            services.AddScoped<IUserAccessor, UserAccessor>();
             
             services.AddMediatR(typeof(List.Handler).Assembly);
+            services.AddAutoMapper();
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["TokenKey"]));
 

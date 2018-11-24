@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
+using Application.Attendences;
+using Domain;
 
-namespace Domain
+namespace Application.Activities
 {
-    public class Activity
+    public class ActivityDTO
     {
         public int Id { get; set; }
         public string Title { get; set; }
@@ -12,6 +14,6 @@ namespace Domain
         public string City { get; set; }
         public string Venue { get; set; }
         public GeoCoordinate GeoCoordinate { get; set; }
-        public ICollection<ActivityAttendee> Attendees { get; set; }
+        public ICollection<AttendeeDTO> Attendees { get; set; }
     }
 }

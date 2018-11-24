@@ -21,7 +21,7 @@ namespace API.Controllers
            {
                var response = await _mediator.Send(command);
 
-               return Ok(response);
+               return CreatedAtRoute("GetActivity", new {id = response.Id}, response);
            }
 
            [HttpGet]
@@ -32,7 +32,7 @@ namespace API.Controllers
                return Ok(activities);
            }
 
-           [HttpGet("{id}")]
+           [HttpGet("{id}", Name = "GetActivity")]
            public async Task<IActionResult> Details(int id)
            {
                var activity = await _mediator.Send(new Details.Query

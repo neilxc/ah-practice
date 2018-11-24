@@ -1,14 +1,17 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Application.Interfaces;
+using AutoMapper;
 using Domain;
 using FluentValidation;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Persistence;
 
 namespace Application.Activities
 {
-    public partial class Create
+    public class Create
     {
         public class ActivityData
         {
@@ -34,7 +37,7 @@ namespace Application.Activities
             }
         }
         
-        public class Command : IRequest<Activity>
+        public class Command : IRequest<ActivityDTO>
         {
             public ActivityData Activity { get; set; }
         }
@@ -47,36 +50,47 @@ namespace Application.Activities
             }
         }
 
-        public class Handler : IRequestHandler<Command, Activity>
+        public class Handler : IRequestHandler<Command, ActivityDTO>
         {
             private readonly DataContext _context;
+            private readonly IUserAccessor _userAccessor;
+            private readonly IMapper _mapper;
 
-            public Handler(DataContext context)
+            public Handler(DataContext context, IUserAccessor userAccessor, IMapper mapper)
             {
                 _context = context;
+                _userAccessor = userAccessor;
+                _mapper = mapper;
             }
             
-            public async Task<Activity> Handle(Command request, CancellationToken cancellationToken)
+            public async Task<ActivityDTO> Handle(Command request, CancellationToken cancellationToken)
             {
-                var activity = new Activity
-                {
-                    Title = request.Activity.Title,
-                    Description = request.Activity.Description,
-                    Date = request.Activity.Date,
-                    City = request.Activity.City,
-                    Venue = request.Activity.Venue,
-                    GeoCoordinate = new GeoCoordinate
-                    {
-                        Latitude = request.Activity.GeoCoordinate.Latitude,
-                        Longitude = request.Activity.GeoCoordinate.Longitude
-                    }
-                };
+                var activity = _mapper.Map<ActivityData, Activity>(request.Activity);
+                
+                var username = _userAccessor.GetCurrentUsername();
+                
+                var user = await _context.Users.
+                    FirstOrDefaultAsync(x => x.UserName == username, cancellationToken);
 
                 await _context.Activities.AddAsync(activity, cancellationToken);
 
+                var attendee = new ActivityAttendee
+                {
+                    AppUser = user,
+                    Activity = activity,
+                    DateJoined = DateTime.Now,
+                    IsHost = true,
+                    ActivityId = activity.Id,
+                    AppUserId = user.Id
+                };
+
+                await _context.ActivityAttendees.AddAsync(attendee, cancellationToken);
+
                 await _context.SaveChangesAsync(cancellationToken);
 
-                return activity;
+                var activityToReturn = _mapper.Map<Activity, ActivityDTO>(activity);
+
+                return activityToReturn;
             }
         }
     }
