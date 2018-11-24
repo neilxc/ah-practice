@@ -25,7 +25,7 @@ namespace Application.Profiles
         
         public async Task<Profile> ReadProfile(string username)
         {
-//            var currentUserName = _userAccessor.GetCurrentUsername();
+            var currentUserName = _userAccessor.GetCurrentUsername();
 
             var user = await _context.Users.AsNoTracking()
                 .FirstOrDefaultAsync(x => x.UserName == username);
@@ -35,18 +35,18 @@ namespace Application.Profiles
 
             var profile = _mapper.Map<AppUser, Profile>(user);
 
-//            if (currentUserName != null)
-//            {
-//                var currentUser = await _context.Users
-//                    .Include(x => x.Following)
-//                    .Include(x => x.Followers)
-//                    .FirstOrDefaultAsync(x => x.UserName == currentUserName);
-//
-//                if (currentUser.Followers.Any(x => x.TargetId == user.Id))
-//                {
-//                    profile.IsFollowed = true;
-//                }
-//            }
+            if (currentUserName != null)
+            {
+                var currentUser = await _context.Users
+                    .Include(x => x.Following)
+                    .Include(x => x.Followers)
+                    .FirstOrDefaultAsync(x => x.UserName == currentUserName);
+
+                if (currentUser.Followers.Any(x => x.TargetId == user.Id))
+                {
+                    profile.IsFollowed = true;
+                }
+            }
 
             return profile;
         }
