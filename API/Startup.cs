@@ -1,5 +1,6 @@
 ﻿using System.Text;
 using Application.Interfaces;
+using Application.Profiles;
 using Application.Values;
 using AutoMapper;
 using Domain;
@@ -46,6 +47,7 @@ namespace API
 
             services.AddScoped<IJwtGenerator, JwtGenerator>();
             services.AddScoped<IUserAccessor, UserAccessor>();
+            services.AddScoped<IProfileReader, ProfileReader>();
             
             services.AddMediatR(typeof(List.Handler).Assembly);
             services.AddAutoMapper();
@@ -73,7 +75,7 @@ namespace API
                 })
                 .AddFluentValidation(cfg =>
                 {
-                    cfg.RegisterValidatorsFromAssemblyContaining(typeof(Details));
+                    cfg.RegisterValidatorsFromAssemblyContaining(typeof(Application.Values.Details));
                 })
                 .SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
         }

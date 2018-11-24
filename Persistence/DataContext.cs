@@ -28,7 +28,7 @@ namespace Persistence
 
             builder.Entity<ActivityAttendee>()
                 .HasOne(u => u.AppUser)
-                .WithMany(a => a.ActivityAttendees)
+                .WithMany(a => a.Attendees)
                 .HasForeignKey(u => u.AppUserId);
             
             builder.Entity<Value>()
@@ -37,6 +37,20 @@ namespace Persistence
                     new Value {Id = 2, Name = "Value 102"},
                     new Value {Id = 3, Name = "Value 103"}
                 );
+
+            builder.Entity<FollowedPeople>(b =>
+            {
+                b.HasKey(k => new {k.ObserverId, k.TargetId});
+                b.HasOne(o => o.Observer)
+                    .WithMany(f => f.Followers)
+                    .HasForeignKey(o => o.ObserverId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                b.HasOne(t => t.Target)
+                    .WithMany(f => f.Following)
+                    .HasForeignKey(t => t.TargetId)
+                    .OnDelete(DeleteBehavior.Restrict);
+            });
         }
     }
 }
