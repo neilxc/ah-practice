@@ -3,6 +3,7 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using Application.Errors;
+using AutoMapper;
 using Domain;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -22,22 +23,24 @@ namespace Application.Activities
             public GeoCoordinate GeoCoordinate { get; set; }
         }
         
-        public class Command : IRequest<Activity>
+        public class Command : IRequest<ActivityDTO>
         {
             public ActivityData Activity { get; set; }
             public int Id { get; set; }
         }
 
-        public class Handler : IRequestHandler<Command, Activity>
+        public class Handler : IRequestHandler<Command, ActivityDTO>
         {
             private readonly DataContext _context;
+            private readonly IMapper _mapper;
 
-            public Handler(DataContext context)
+            public Handler(DataContext context, IMapper mapper)
             {
                 _context = context;
+                _mapper = mapper;
             }
             
-            public async Task<Activity> Handle(Command request, CancellationToken cancellationToken)
+            public async Task<ActivityDTO> Handle(Command request, CancellationToken cancellationToken)
             {
                 var activity = await _context.Activities.Include(x => x.GeoCoordinate)
                     .FirstOrDefaultAsync(x => x.Id == request.Id, cancellationToken);
@@ -59,7 +62,9 @@ namespace Application.Activities
 
                 await _context.SaveChangesAsync(cancellationToken);
 
-                return activity;
+                var activityToReturn = _mapper.Map<Activity, ActivityDTO>(activity);
+
+                return activityToReturn;
 
             }
         }

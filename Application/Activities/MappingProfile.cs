@@ -11,7 +11,7 @@ namespace Application.Activities
         {
             CreateMap<Create.ActivityData, Activity>();
             CreateMap<Activity, ActivityDTO>();
-            CreateMap<List<ActivityAttendee>, List<AttendeeDTO>>();
+            CreateMap<ActivityAttendee, AttendeeDTO>();
         }
     }
 }

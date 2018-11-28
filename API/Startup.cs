@@ -21,6 +21,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Persistence;
+using Swashbuckle.AspNetCore.Swagger;
 
 namespace API
 {
@@ -54,6 +55,12 @@ namespace API
             
             services.AddMediatR(typeof(List.Handler).Assembly);
             services.AddAutoMapper();
+            
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new Info { Title = "ActivityHub API", Version = "v1" });
+                c.CustomSchemaIds(x => x.FullName);
+            });
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["TokenKey"]));
 
@@ -68,6 +75,12 @@ namespace API
                         ValidateAudience = false
                     };
                 });
+
+            services.AddAuthorization(opt =>
+            {
+                opt.AddPolicy("IsActivityHost", policy => { policy.Requirements.Add(new IsHostRequirement()); });
+            });
+            services.AddTransient<IAuthorizationHandler, IsHostHandler>();
             
             services.AddMvc(opt =>
                 {
@@ -100,6 +113,8 @@ namespace API
             app.UseHttpsRedirection();
             app.UseAuthentication();
             app.UseMvc();
+
+            app.UseSwagger();
         }
     }
 }
