@@ -26,7 +26,7 @@ namespace Application.Tests.Activities
             context.Activities.Add(new Activity {Id = 2, Title = "Test Activity 2"});
             context.SaveChanges();
 
-            const int id = 2;
+            const int id = 1;
             var sut = new Details.Handler(context, _mapper);
             var result = sut.Handle(new Details.Query{Id = id}, CancellationToken.None).Result;
             
