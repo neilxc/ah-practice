@@ -40,6 +40,7 @@ namespace API
             services.AddDbContext<DataContext>(opt =>
             {
                 opt.UseSqlite(_configuration.GetConnectionString("DefaultConnection"));
+//                opt.UseSqlite("Data Source=Activityhub.db");
             });
 
             var builder = services.AddIdentityCore<AppUser>();
