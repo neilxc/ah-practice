@@ -4,7 +4,7 @@ dotnet: 2.1.403
 script:
   - dotnet restore
   - dotnet build
-  - dotnet test Application.Tests
+  - dotnet test tests/Application.Tests
 notifications: 
   email:
     - neil@intapoint.com
