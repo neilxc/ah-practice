@@ -32,21 +32,32 @@ namespace API
     public class Startup
     {
         private readonly IConfiguration _configuration;
+        private readonly IHostingEnvironment _env;
 
-        public Startup(IConfiguration configuration)
+        public Startup(IConfiguration configuration, IHostingEnvironment env)
         {
             _configuration = configuration;
+            _env = env;
         }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddDbContext<DataContext>(opt =>
+            if (_env.IsDevelopment())
             {
-                opt.UseSqlite(_configuration.GetConnectionString("DefaultConnection"));
-//                opt.UseSqlite("Data Source=Activityhub.db");
-            });
-
+                services.AddDbContext<DataContext>(opt =>
+                {
+                    opt.UseSqlite(_configuration.GetConnectionString("DefaultConnection"));
+                });
+            }
+            else
+            {
+                services.AddDbContext<DataContext>(opt =>
+                {
+                    opt.UseSqlServer("Server=fake;Initial Catalog=activityhubdb;Persist Security Info=False;User ID=fakeuser;Password=fakepassword;");
+                });
+            }
+           
             var builder = services.AddIdentityCore<AppUser>();
             builder = new IdentityBuilder(builder.UserType, builder.Services);
             builder.AddEntityFrameworkStores<DataContext>();
@@ -119,11 +130,11 @@ namespace API
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app)
         {     
             app.UseMiddleware<ErrorHandlingMiddleware>();
             
-            if (env.IsDevelopment())
+            if (_env.IsDevelopment())
             {
                 
             }
