@@ -1,6 +1,5 @@
 using System.Threading.Tasks;
 using Application.Activities;
-using Application.Errors;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -26,8 +25,6 @@ namespace API.Controllers
            /// <response code="400">This is a bad request</response>
            /// <response code="500">Server Error</response>
            [HttpPost]
-//           [ProducesResponseType(typeof(ActivityDTO), 201)]
-//           [ProducesResponseType(typeof(RestException), 400)]
            public async Task<IActionResult> Create(Create.Command command)
            {
                var response = await _mediator.Send(command);
@@ -36,9 +33,9 @@ namespace API.Controllers
            }
 
            [HttpGet]
-           public async Task<IActionResult> List()
+           public async Task<IActionResult> List(string sort, string username, bool host, int? limit, int? offset)
            {
-               var activities = await _mediator.Send(new List.Query());
+               var activities = await _mediator.Send(new List.Query(sort, username, host, limit, offset));
 
                return Ok(activities);
            }

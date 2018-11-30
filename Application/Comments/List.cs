@@ -1,8 +1,12 @@
 using System.Collections.Generic;
+using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using Application.Errors;
 using AutoMapper;
+using Domain;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Persistence;
 
 namespace Application.Comments
@@ -30,9 +34,19 @@ namespace Application.Comments
                 _mapper = mapper;
             }
             
-            public Task<List<CommentDto>> Handle(Query request, CancellationToken cancellationToken)
+            public async Task<List<CommentDto>> Handle(Query request, CancellationToken cancellationToken)
             {
-                throw new System.NotImplementedException();
+                var activity = await _context.Activities
+                    .Include(x => x.Comments)
+                    .ThenInclude(x => x.Author)
+                    .FirstOrDefaultAsync(x => x.Id == request.ActivityId, cancellationToken);
+                
+                if (activity == null)
+                    throw new RestException(HttpStatusCode.NotFound, new {Activity = "Not found"});
+
+                var comments = _mapper.Map<ICollection<Comment>, List<CommentDto>>(activity.Comments);
+
+                return comments;
             }
         }
     }

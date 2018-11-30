@@ -1,9 +1,14 @@
+using System;
+using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using Application.Errors;
 using Application.Interfaces;
 using AutoMapper;
+using Domain;
 using FluentValidation;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Persistence;
 
 namespace Application.Comments
@@ -42,9 +47,33 @@ namespace Application.Comments
                 _mapper = mapper;
             }
             
-            public Task<CommentDto> Handle(Command request, CancellationToken cancellationToken)
+            public async Task<CommentDto> Handle(Command request, CancellationToken cancellationToken)
             {
-                throw new System.NotImplementedException();
+                var activity = await _context.Activities.Include(x => x.Comments)
+                    .FirstOrDefaultAsync(x => x.Id == request.ActivityId, cancellationToken);
+                
+                if (activity == null)
+                    throw new RestException(HttpStatusCode.NotFound, new {Activity = "Not found"});
+
+                var author = await _context.Users
+                    .FirstOrDefaultAsync(x => x.UserName == _userAccessor.GetCurrentUsername(), cancellationToken);
+
+                var comment = new Comment
+                {
+                    Author = author,
+                    Body = request.Comment.Body,
+                    CreatedAt = DateTime.Now
+                };
+
+                await _context.Comments.AddAsync(comment, cancellationToken);
+                
+                activity.Comments.Add(comment);
+
+                await _context.SaveChangesAsync(cancellationToken);
+
+                var commentDto = _mapper.Map<Comment, CommentDto>(comment);
+
+                return commentDto;
             }
         }
     }

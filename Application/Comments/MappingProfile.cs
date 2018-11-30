@@ -8,6 +8,7 @@ namespace Application.Comments
         public MappingProfile()
         {
             CreateMap<Comment, CommentDto>();
+            CreateMap<AppUser, Profiles.Profile>();
         }
     }
 }

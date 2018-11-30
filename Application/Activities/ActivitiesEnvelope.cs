@@ -5,7 +5,7 @@ namespace Application.Activities
 {
     public class ActivitiesEnvelope
     {
-        public List<Activity> Activities { get; set; }
+        public List<ActivityDTO> Activities { get; set; }
         public int ActivityCount { get; set; }
     }
 }
