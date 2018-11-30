@@ -7,7 +7,7 @@ namespace Persistence
 {
     public class DataContext : IdentityDbContext<AppUser, IdentityRole<int>, int>
     {
-        public DataContext(DbContextOptions options) : base(options)
+        public DataContext(DbContextOptions<DataContext> options) : base(options)
         {
         }
 
