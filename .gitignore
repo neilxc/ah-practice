@@ -12,3 +12,5 @@ obj
 ehthumbs.db
 Thumbs.db
 .idea
+
+appsettings.Production*
