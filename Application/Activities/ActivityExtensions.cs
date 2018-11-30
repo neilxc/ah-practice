@@ -12,6 +12,7 @@ namespace Application.Activities
                 .Include(x => x.GeoCoordinate)
                 .Include(x => x.Attendees)
                 .ThenInclude(x => x.AppUser)
+                .ThenInclude(x => x.Photos)
                 .AsNoTracking();
         }
     }

@@ -39,8 +39,7 @@ namespace Application.Attendences
             public async Task<ActivityDTO> Handle(Command request, CancellationToken cancellationToken)
             {
                 var activity = await _context.Activities
-                    .Include(x => x.Attendees)
-                    .ThenInclude(x => x.AppUser)
+                    .GetAllData()
                     .FirstOrDefaultAsync(x => x.Id == request.Id, cancellationToken);
 
                 var user = await _context.Users.FirstOrDefaultAsync(x =>
