@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -20,27 +21,33 @@ namespace Application.Tests.Comments
             
             var context = GetDbContext();
             
-            await context.Users.AddAsync(new AppUser
+            var user = await context.Users.AddAsync(new AppUser
             {
                 Id = 1,
                 Email = "test@test.com",
                 UserName = "test"
             });
 
-            context.Activities.Add(new Activity {Id = 1, Title = "Test Activity 1", Comments = new List<Comment>
-            {
-                new Comment
+            context.Activities.Add(new Activity {
+                Id = 1, 
+                Title = "Test Activity 1", 
+                Date = DateTime.Now.AddDays(2),
+                Comments = new List<Comment>
                 {
-                    Id = 1,
-                    Body = "test comment 1"
-                },
-                new Comment
-                {
-                    Id = 2,
-                    Body = "test comment 2"
-                }
-            }});
-            await context.Activities.AddAsync(new Activity {Id = 2, Title = "Test Activity 2"});
+                    new Comment
+                    {
+                        Id = 1,
+                        Body = "test comment 1",
+                        Author = user.Entity
+                    },
+                    new Comment
+                    {
+                        Id = 2,
+                        Body = "test comment 2"
+                    }
+                }});
+            await context.Activities.AddAsync(new Activity
+                {Id = 2, Title = "Test Activity 2", Date = DateTime.Now.AddDays(1)});
             await context.SaveChangesAsync();
             
             var sut = new Delete.Handler(context, userAccessor.Object);
