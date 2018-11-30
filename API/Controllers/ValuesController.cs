@@ -11,6 +11,7 @@ using Persistence;
 
 namespace API.Controllers
 {
+    [AllowAnonymous]
     [Route("api/[controller]")]
     [ApiController]
     public class ValuesController : ControllerBase
@@ -32,7 +33,6 @@ namespace API.Controllers
         }
 
         // GET api/values/5
-        [Authorize]
         [HttpGet("{id}")]
         public async Task<IActionResult> Get(int id)
         {
