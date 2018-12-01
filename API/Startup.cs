@@ -54,7 +54,7 @@ namespace API
             {
                 services.AddDbContext<DataContext>(opt =>
                 {
-                    opt.UseSqlServer("Server=fake;Initial Catalog=activityhubdb;Persist Security Info=False;User ID=fakeuser;Password=fakepassword;");
+                    opt.UseSqlServer(_configuration.GetConnectionString("DefaultConnection"));
                 });
             }
            
